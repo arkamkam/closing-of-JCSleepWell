@@ -15,13 +15,16 @@ export function Hero() {
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-amber-200/95 sm:text-base">
             September 14, 2026 · 9:30 AM – 6:00 PM
           </p>
-          <h1 className="max-w-4xl text-balance text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Project Closing
-            <span className="block">Symposium</span>
+          <h1 className="max-w-4xl text-balance text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+            Jockey Club Sleep Well Project
+            <span className="block">Finale cum International Conference 2026</span>
           </h1>
-          <p className="mt-4 max-w-xl text-pretty text-base text-white/85 sm:text-lg">
-            One day to celebrate what we shipped, share learnings, and close the
-            chapter together.
+          <p className="mt-4 max-w-2xl text-pretty text-base text-white/85 sm:text-lg">
+            賽馬會樂眠無憂計劃成果分享暨國際研討會2026
+          </p>
+          <p className="mt-3 max-w-xl text-pretty text-sm text-white/75 sm:text-base">
+            A full-day programme at CUHK — keynotes, symposium sessions, and
+            panel discussion on sleep health across the lifespan.
           </p>
 
           <Link

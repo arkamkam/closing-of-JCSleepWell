@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Project Closing Symposium",
+  title: "JC Sleep Well Project Finale cum International Conference 2026",
   description:
-    "September 14, 2026 — join us for the project closing symposium, 9:30 AM to 6:00 PM.",
+    "September 14, 2026 at CUHK — Jockey Club Sleep Well Project finale and international conference, 9:30 AM to 6:00 PM.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -32,7 +32,8 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased light`}
+      style={{ colorScheme: "light" }}
     >
       <body className="min-h-full bg-zinc-100 font-sans text-zinc-900">
         <Navbar />

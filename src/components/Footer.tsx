@@ -47,7 +47,7 @@ function PartnerLink({
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-800 bg-white text-zinc-800">
+    <footer className="border-t border-zinc-200 bg-white text-zinc-800">
       <div className="mx-auto max-w-6xl px-5 py-7 sm:px-7 sm:py-8 lg:max-w-7xl lg:px-10 lg:py-9">
         <div className="mb-4 flex w-full flex-wrap items-center justify-center gap-6 sm:mb-5 sm:gap-8">
           <Link

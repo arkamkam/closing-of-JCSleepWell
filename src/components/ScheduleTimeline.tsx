@@ -1,7 +1,15 @@
 import Link from "next/link";
+import {
+  EVENT,
+  programItems,
+  speakers,
+  symposiumBlocks,
+  type ProgramItem,
+} from "@/lib/program";
+import { getPhotoFramingByName, SpeakerPhoto } from "@/components/SpeakerPhoto";
 
 /** Local file in `public/res/` (synced from `res/`). */
-const SESSION_AVATAR_SRC =
+const DEFAULT_AVATAR_SRC =
   "/res/" +
   encodeURIComponent("JC Sleep Well Project_Horizontal logo (PNG).png");
 
@@ -13,72 +21,100 @@ type Slot = {
   timeEnd: string;
   title: string;
   description: string;
-  speaker: { name: string; title: string };
+  speaker: { name: string; title: string; photo?: string; speakerId?: string };
   theme: Theme;
+  isBreak: boolean;
 };
 
-const slots: Slot[] = [
-  {
-    id: "1",
-    timeStart: "9:30 AM",
-    timeEnd: "10:15 AM",
-    title: "Doors open & breakfast",
-    description:
-      "Grab coffee, find your seat, and reconnect before we kick things off. A relaxed start to the final milestone day.",
-    speaker: { name: "Hosts", title: "Program team" },
-    theme: "amber",
-  },
-  {
-    id: "2",
-    timeStart: "10:15 AM",
-    timeEnd: "12:00 PM",
-    title: "What we built — highlights reel",
-    description:
-      "A walkthrough of the biggest wins, tricky problems we solved, and the impact on customers. Bring your questions.",
-    speaker: { name: "Alex Rivera", title: "Engineering lead" },
-    theme: "teal",
-  },
-  {
-    id: "3",
-    timeStart: "12:00 PM",
-    timeEnd: "1:15 PM",
-    title: "Lunch & hallway track",
-    description:
-      "Celebrate together over lunch. Use this time for informal demos, thank-yous, and photos.",
-    speaker: { name: "Everyone", title: "Open floor" },
-    theme: "violet",
-  },
-  {
-    id: "4",
-    timeStart: "1:15 PM",
-    timeEnd: "3:30 PM",
-    title: "Deep dives & lightning talks",
-    description:
-      "Short sessions from each squad on decisions, tradeoffs, and lessons learned. Fast-paced and collaborative.",
-    speaker: { name: "Squad leads", title: "Rotating mic" },
-    theme: "amber",
-  },
-  {
-    id: "5",
-    timeStart: "3:30 PM",
-    timeEnd: "5:00 PM",
-    title: "Retrospective & acknowledgements",
-    description:
-      "Honest reflection on the journey, shout-outs, and space for gratitude before we turn the page.",
-    speaker: { name: "Jordan Lee", title: "Program director" },
-    theme: "teal",
-  },
-  {
-    id: "6",
-    timeStart: "5:00 PM",
-    timeEnd: "6:00 PM",
-    title: "Closing toast",
-    description:
-      "A short closing moment, next steps for documentation and handoff, then we wrap at 6:00 PM.",
-    speaker: { name: "Leadership", title: "Closing remarks" },
-    theme: "violet",
-  },
-];
+const themes: Theme[] = ["amber", "teal", "violet"];
+
+function formatTime12(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 || 12;
+  const ampm = h < 12 ? "AM" : "PM";
+  return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function themeForKind(kind: ProgramItem["kind"], index: number): Theme {
+  if (kind === "keynote") return "teal";
+  if (kind === "symposium") return "violet";
+  if (kind === "break") return "amber";
+  return themes[index % themes.length];
+}
+
+function findSpeaker(name?: string, speakerId?: string) {
+  if (speakerId) {
+    const byId = speakers.find((s) => s.id === speakerId);
+    if (byId) {
+      return {
+        name: byId.name,
+        title: byId.role,
+        photo: byId.photo,
+        speakerId: byId.id,
+      };
+    }
+  }
+  if (!name) return null;
+  const byName = speakers.find(
+    (s) => s.name === name || name.includes(s.name.split(" ").slice(-1)[0]!),
+  );
+  if (byName) {
+    return {
+      name: byName.name,
+      title: byName.role,
+      photo: byName.photo,
+      speakerId: byName.id,
+    };
+  }
+  return { name, title: "Speaker", photo: undefined, speakerId: undefined };
+}
+
+function buildSlots(): Slot[] {
+  return programItems.map((item, index) => {
+    const symposium = item.symposiumId
+      ? symposiumBlocks.find((s) => s.id === item.symposiumId)
+      : undefined;
+
+    let description = "";
+    let speaker: Slot["speaker"] = findSpeaker(item.speaker) ?? {
+      name: "TBC",
+      title: "—",
+    };
+
+    if (symposium) {
+      description = symposium.talks
+        .map((talk) => `• ${talk.title} (${talk.speaker})`)
+        .join("\n");
+      const featured = symposium.talks.find((t) => t.speakerId);
+      speaker =
+        findSpeaker(featured?.speaker, featured?.speakerId) ?? {
+          name: "Symposium speakers",
+          title: `${symposium.talks.length} presentations`,
+        };
+    } else if (item.kind === "break") {
+      description = "Scheduled break.";
+      speaker = { name: "Break", title: "—" };
+    } else if (item.speaker) {
+      description = `Presented by ${item.speaker}.`;
+    } else {
+      description = "Details to be announced.";
+      speaker = { name: "TBC", title: "—" };
+    }
+
+    return {
+      id: item.id,
+      timeStart: formatTime12(item.timeStart),
+      timeEnd: formatTime12(item.timeEnd),
+      title: item.title,
+      description,
+      speaker,
+      theme: themeForKind(item.kind, index),
+      isBreak: item.kind === "break",
+    };
+  });
+}
+
+const slots = buildSlots();
 
 const themeClasses: Record<
   Theme,
@@ -101,15 +137,36 @@ const themeClasses: Record<
   },
 };
 
-function SessionAvatar() {
-  const box =
-    "flex h-14 w-[7.25rem] shrink-0 items-center justify-center rounded-xl bg-white p-1.5 ring-1 ring-zinc-200/90 sm:h-16 sm:w-[8.5rem] sm:p-2";
+function SessionAvatar({
+  photo,
+  speakerId,
+  name,
+}: {
+  photo?: string;
+  speakerId?: string;
+  name?: string;
+}) {
+  const src = photo ?? DEFAULT_AVATAR_SRC;
+  const isLogo = !photo;
+
+  if (isLogo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt=""
+        className="flex h-14 w-[7.25rem] shrink-0 items-center justify-center rounded-xl bg-white object-contain p-1.5 ring-1 ring-zinc-200/90 sm:h-16 sm:w-[8.5rem] sm:p-2"
+      />
+    );
+  }
+
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- encoded filename in public/res
-    <img
-      src={SESSION_AVATAR_SRC}
-      alt=""
-      className={`${box} object-contain`}
+    <SpeakerPhoto
+      src={src}
+      alt={name ?? ""}
+      size="sm"
+      speakerId={speakerId}
+      framing={getPhotoFramingByName(name)}
     />
   );
 }
@@ -135,13 +192,7 @@ function TimeNode({
   );
 }
 
-function Card({
-  slot,
-  side,
-}: {
-  slot: Slot;
-  side: "left" | "right";
-}) {
+function Card({ slot, side }: { slot: Slot; side: "left" | "right" }) {
   const t = themeClasses[slot.theme];
   const pointerTowardLine =
     side === "right"
@@ -151,7 +202,11 @@ function Card({
   const speakerRow =
     side === "right" ? (
       <div className="flex items-center gap-3">
-        <SessionAvatar />
+        <SessionAvatar
+          photo={slot.speaker.photo}
+          speakerId={slot.speaker.speakerId}
+          name={slot.speaker.name}
+        />
         <div className="min-w-0 text-left">
           <p className="font-bold text-zinc-900">{slot.speaker.name}</p>
           <p className="text-sm text-zinc-500">{slot.speaker.title}</p>
@@ -159,7 +214,11 @@ function Card({
       </div>
     ) : (
       <div className="flex flex-row-reverse items-center gap-3">
-        <SessionAvatar />
+        <SessionAvatar
+          photo={slot.speaker.photo}
+          speakerId={slot.speaker.speakerId}
+          name={slot.speaker.name}
+        />
         <div className="min-w-0 text-right">
           <p className="font-bold text-zinc-900">{slot.speaker.name}</p>
           <p className="text-sm text-zinc-500">{slot.speaker.title}</p>
@@ -170,10 +229,7 @@ function Card({
   const btnAlign = side === "right" ? "self-start" : "self-end";
 
   return (
-    <article
-      id={`session-${slot.id}`}
-      className="relative max-w-xl rounded-2xl bg-white p-5 shadow-lg shadow-zinc-200/80 ring-1 ring-zinc-100 sm:p-6"
-    >
+    <article className="relative max-w-xl rounded-2xl bg-white p-5 shadow-lg shadow-zinc-200/80 ring-1 ring-zinc-100 sm:p-6">
       <span
         className={`pointer-events-none absolute border-2 ${pointerTowardLine}`}
         aria-hidden
@@ -182,15 +238,17 @@ function Card({
       <h3 className="mt-4 text-xl font-bold text-zinc-900 sm:text-2xl">
         {slot.title}
       </h3>
-      <p className="mt-2 text-sm leading-relaxed text-zinc-600 sm:text-base">
+      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-zinc-600 sm:text-base">
         {slot.description}
       </p>
-      <Link
-        href={`#session-${slot.id}`}
-        className={`mt-5 inline-flex rounded-lg px-4 py-2 text-sm font-semibold transition ${t.btn} ${btnAlign}`}
-      >
-        Read more
-      </Link>
+      {!slot.isBreak ? (
+        <Link
+          href="/program"
+          className={`mt-5 inline-flex rounded-lg px-4 py-2 text-sm font-semibold transition ${t.btn} ${btnAlign}`}
+        >
+          View program
+        </Link>
+      ) : null}
     </article>
   );
 }
@@ -214,8 +272,8 @@ export function ScheduleTimeline() {
             Day-of timeline
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
-            September 14, 2026 · 9:30 AM – 6:00 PM. Sessions alternate around the
-            center line like your reference layout.
+            {EVENT.date} · {EVENT.timeRange}. Sessions alternate around the
+            center line — scroll for the full day rundown.
           </p>
         </header>
 
@@ -259,6 +317,15 @@ export function ScheduleTimeline() {
             })}
           </ul>
         </div>
+
+        <p className="mt-14 text-center">
+          <Link
+            href="/program"
+            className="text-sm font-semibold text-[#34657B] underline-offset-4 transition hover:text-[#2a5163] hover:underline"
+          >
+            View full program details & speaker profiles →
+          </Link>
+        </p>
       </div>
     </section>
   );
