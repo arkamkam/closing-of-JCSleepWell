@@ -228,7 +228,30 @@ export type Speaker = {
   abstract?: string;
 };
 
+/** Display order (論資排輩): row 1 Joey | Joanne; row 2 Danny | Sijing */
 export const speakers: Speaker[] = [
+  {
+    id: "joey-chan",
+    name: "Dr. Joey Wing-yan Chan",
+    role: "Associate Professor (Clinical), Department of Psychiatry, CUHK",
+    photo: "/res/joeyc.jpg",
+    presentationTitle:
+      "Living Against the Clock: Circadian Misalignment and Its Consequences",
+    biography:
+      "Dr. Joey Wing-yan Chan is an Associate Professor (Clinical) in the Department of Psychiatry at The Chinese University of Hong Kong. Her research focuses on sleep and circadian rhythms and their roles in neuropsychiatric disorders, with notable contributions to circadian-focused interventions and non-pharmacological chronotherapeutic treatments.",
+  },
+  {
+    id: "bei-huang",
+    name: "Dr. Bei Huang",
+    role: "Assistant Professor, Department of Psychiatry, CUHK",
+    photo: "/res/dr.beihuang.jpg",
+    presentationTitle:
+      "REM sleep behavior disorder: a window for preventing neurodegeneration",
+    biography:
+      "Dr. Bei Huang is an Assistant Professor in the Department of Psychiatry at The Chinese University of Hong Kong. Her research focuses on the epidemiology, pathophysiology, and diagnosis of neurodegenerative and sleep disorders, with primary interest in the gut-brain axis in REM sleep behavior disorder and Parkinson's disease.",
+    abstract:
+      "The gut-brain axis is emerging as a crucial player in neurodegeneration. This talk explores isolated REM sleep behavior disorder (iRBD) as an early-warning window, presenting metagenomic findings from a Hong Kong cohort and discussing gut-based diagnostics and interventions.",
+  },
   {
     id: "danny-yu",
     name: "Dr. Danny Yu",
@@ -251,27 +274,5 @@ export const speakers: Speaker[] = [
       "Dr. Sijing Chen is a Research Assistant Professor in the Department of Psychiatry at the Chinese University of Hong Kong. Her research focuses on sleep and mental health, exploring associations of sleep disturbances with psychiatric, neurodegenerative, and physical disorders, and evaluating sleep interventions for prevention and early intervention.",
     abstract:
       "Depression affects over 1.2 billion youth worldwide. This talk discusses the relationship between sleep disorders and depression, digital therapeutics for scalable prevention, and findings from Asia's first clinical trial demonstrating digital insomnia intervention for preventing depression among at-risk youth.",
-  },
-  {
-    id: "joey-chan",
-    name: "Dr. Joey Wing-yan Chan",
-    role: "Associate Professor (Clinical), Department of Psychiatry, CUHK",
-    photo: "/res/joeyc.jpg",
-    presentationTitle:
-      "Living Against the Clock: Circadian Misalignment and Its Consequences",
-    biography:
-      "Dr. Joey Wing-yan Chan is an Associate Professor (Clinical) in the Department of Psychiatry at The Chinese University of Hong Kong. Her research focuses on sleep and circadian rhythms and their roles in neuropsychiatric disorders, with notable contributions to circadian-focused interventions and non-pharmacological chronotherapeutic treatments.",
-  },
-  {
-    id: "bei-huang",
-    name: "Dr. Bei Huang",
-    role: "Assistant Professor, Department of Psychiatry, CUHK",
-    photo: "/res/dr.beihuang.jpg",
-    presentationTitle:
-      "REM sleep behavior disorder: a window for preventing neurodegeneration",
-    biography:
-      "Dr. Bei Huang is an Assistant Professor in the Department of Psychiatry at The Chinese University of Hong Kong. Her research focuses on the epidemiology, pathophysiology, and diagnosis of neurodegenerative and sleep disorders, with primary interest in the gut-brain axis in REM sleep behavior disorder and Parkinson's disease.",
-    abstract:
-      "The gut-brain axis is emerging as a crucial player in neurodegeneration. This talk explores isolated REM sleep behavior disorder (iRBD) as an early-warning window, presenting metagenomic findings from a Hong Kong cohort and discussing gut-based diagnostics and interventions.",
   },
 ];
