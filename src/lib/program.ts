@@ -42,7 +42,7 @@ export const programItems: ProgramItem[] = [
     timeStart: "09:40",
     timeEnd: "10:00",
     title: "Officiating Speech",
-    speaker: "Representative from JC and Government",
+    speaker: "Rep from JC and Gov",
     kind: "ceremony",
   },
   {
@@ -64,8 +64,8 @@ export const programItems: ProgramItem[] = [
     id: "agency",
     timeStart: "10:25",
     timeEnd: "11:00",
-    title: "Agency sharing on JC Sleep Well Project",
-    speaker: "Representatives from NGOs",
+    title: "Agency sharing on JC sleep well project",
+    speaker: "Rep from NGOs",
     kind: "other",
   },
   {
@@ -103,7 +103,7 @@ export const programItems: ProgramItem[] = [
     timeStart: "14:00",
     timeEnd: "15:00",
     title:
-      "Symposium 1: Sleep problems across lifespans — risk factors, consequence and intervention",
+      "Symposium 1: Sleep problems across lifespans: risk factors, consequence and intervention",
     kind: "symposium",
     symposiumId: "s1",
   },
@@ -112,7 +112,7 @@ export const programItems: ProgramItem[] = [
     timeStart: "15:00",
     timeEnd: "16:00",
     title:
-      "Symposium 2: Sleep well, feel well — targeting sleep problems to improve mental health",
+      "Symposium 2: Sleep well, feel well: targeting sleep problems to improve mental health",
     kind: "symposium",
     symposiumId: "s2",
   },
@@ -128,7 +128,7 @@ export const programItems: ProgramItem[] = [
     timeStart: "16:20",
     timeEnd: "17:20",
     title:
-      "Symposium 3: Digital sleep intervention — challenges and future directions",
+      "Symposium 3: Digital sleep intervention: Challenges and future directions",
     kind: "symposium",
     symposiumId: "s3",
   },
@@ -136,7 +136,7 @@ export const programItems: ProgramItem[] = [
     id: "panel",
     timeStart: "17:20",
     timeEnd: "18:00",
-    title: "Panel Discussion",
+    title: "Panel discussion",
     speaker: "To be confirmed",
     kind: "panel",
   },

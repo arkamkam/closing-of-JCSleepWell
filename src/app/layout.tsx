@@ -14,12 +14,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_ICON =
+  "/res/" + encodeURIComponent("JC Sleep Well Project_Horizontal logo (PNG).png");
+
 export const metadata: Metadata = {
   title: "JC Sleep Well Project Finale cum International Conference 2026",
   description:
     "September 14, 2026 at CUHK — Jockey Club Sleep Well Project finale and international conference, 9:30 AM to 6:00 PM.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: SITE_ICON, type: "image/png" }],
+    shortcut: SITE_ICON,
+    apple: SITE_ICON,
   },
 };
 

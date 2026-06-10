@@ -1,32 +1,9 @@
 import Link from "next/link";
-import {
-  EVENT,
-  programItems,
-  speakers,
-  symposiumBlocks,
-  type ProgramItem,
-} from "@/lib/program";
-import { getPhotoFramingByName, SpeakerPhoto } from "@/components/SpeakerPhoto";
+import { EVENT, programItems, type ProgramItem } from "@/lib/program";
 
-/** Local file in `public/res/` (synced from `res/`). */
-const DEFAULT_AVATAR_SRC =
-  "/res/" +
-  encodeURIComponent("JC Sleep Well Project_Horizontal logo (PNG).png");
-
-type Theme = "amber" | "teal" | "violet";
-
-type Slot = {
-  id: string;
-  timeStart: string;
-  timeEnd: string;
-  title: string;
-  description: string;
-  speaker: { name: string; title: string; photo?: string; speakerId?: string };
-  theme: Theme;
-  isBreak: boolean;
-};
-
-const themes: Theme[] = ["amber", "teal", "violet"];
+const AFTERNOON_START_MIN = 14 * 60;
+const CIRCLE_SIZE = "h-18 w-18";
+const CIRCLE_SIZE_DESKTOP = "h-20 w-20 xl:h-[5.5rem] xl:w-[5.5rem]";
 
 function formatTime12(time: string) {
   const [h, m] = time.split(":").map(Number);
@@ -35,139 +12,114 @@ function formatTime12(time: string) {
   return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
-function themeForKind(kind: ProgramItem["kind"], index: number): Theme {
-  if (kind === "keynote") return "teal";
-  if (kind === "symposium") return "violet";
-  if (kind === "break") return "amber";
-  return themes[index % themes.length];
+function timeToMinutes(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
 }
 
-function findSpeaker(name?: string, speakerId?: string) {
-  if (speakerId) {
-    const byId = speakers.find((s) => s.id === speakerId);
-    if (byId) {
-      return {
-        name: byId.name,
-        title: byId.role,
-        photo: byId.photo,
-        speakerId: byId.id,
-      };
-    }
-  }
-  if (!name) return null;
-  const byName = speakers.find(
-    (s) => s.name === name || name.includes(s.name.split(" ").slice(-1)[0]!),
-  );
-  if (byName) {
-    return {
-      name: byName.name,
-      title: byName.role,
-      photo: byName.photo,
-      speakerId: byName.id,
-    };
-  }
-  return { name, title: "Speaker", photo: undefined, speakerId: undefined };
-}
+const morningItems = programItems.filter(
+  (item) => timeToMinutes(item.timeStart) < AFTERNOON_START_MIN,
+);
+const afternoonItems = programItems.filter(
+  (item) => timeToMinutes(item.timeStart) >= AFTERNOON_START_MIN,
+);
 
-function buildSlots(): Slot[] {
-  return programItems.map((item, index) => {
-    const symposium = item.symposiumId
-      ? symposiumBlocks.find((s) => s.id === item.symposiumId)
-      : undefined;
+type Theme = "amber" | "teal" | "violet";
 
-    let description = "";
-    let speaker: Slot["speaker"] = findSpeaker(item.speaker) ?? {
-      name: "TBC",
-      title: "—",
-    };
-
-    if (symposium) {
-      description = symposium.talks
-        .map((talk) => `• ${talk.title} (${talk.speaker})`)
-        .join("\n");
-      const featured = symposium.talks.find((t) => t.speakerId);
-      speaker =
-        findSpeaker(featured?.speaker, featured?.speakerId) ?? {
-          name: "Symposium speakers",
-          title: `${symposium.talks.length} presentations`,
-        };
-    } else if (item.kind === "break") {
-      description = "Scheduled break.";
-      speaker = { name: "Break", title: "—" };
-    } else if (item.speaker) {
-      description = `Presented by ${item.speaker}.`;
-    } else {
-      description = "Details to be announced.";
-      speaker = { name: "TBC", title: "—" };
-    }
-
-    return {
-      id: item.id,
-      timeStart: formatTime12(item.timeStart),
-      timeEnd: formatTime12(item.timeEnd),
-      title: item.title,
-      description,
-      speaker,
-      theme: themeForKind(item.kind, index),
-      isBreak: item.kind === "break",
-    };
-  });
-}
-
-const slots = buildSlots();
+const themes: Theme[] = ["amber", "teal", "violet"];
 
 const themeClasses: Record<
   Theme,
-  { ring: string; btn: string; pointerBorder: string }
+  { ring: string; pointerBorder: string }
 > = {
   amber: {
     ring: "border-amber-400 text-amber-600",
-    btn: "bg-amber-500 hover:bg-amber-400 text-white",
     pointerBorder: "border-amber-400",
   },
   teal: {
     ring: "border-teal-400 text-teal-600",
-    btn: "bg-teal-500 hover:bg-teal-400 text-white",
     pointerBorder: "border-teal-400",
   },
   violet: {
     ring: "border-violet-500 text-violet-700",
-    btn: "bg-violet-600 hover:bg-violet-500 text-white",
     pointerBorder: "border-violet-500",
   },
 };
 
-function SessionAvatar({
-  photo,
-  speakerId,
-  name,
-}: {
-  photo?: string;
-  speakerId?: string;
-  name?: string;
-}) {
-  const src = photo ?? DEFAULT_AVATAR_SRC;
-  const isLogo = !photo;
+function themeForKind(kind: ProgramItem["kind"], index: number): Theme {
+  if (kind === "keynote") return "teal";
+  if (kind === "symposium") return "violet";
+  if (kind === "break") return "amber";
+  if (kind === "ceremony") return "amber";
+  if (kind === "panel") return "teal";
+  return themes[index % themes.length];
+}
 
-  if (isLogo) {
+function splitSymposiumTitle(title: string) {
+  const match = title.match(/^(Symposium \d+:)\s*(.+)$/i);
+  if (!match) return null;
+  return { label: match[1], subtitle: match[2] };
+}
+
+function EventTitle({
+  item,
+  compact = false,
+}: {
+  item: ProgramItem;
+  compact?: boolean;
+}) {
+  const split = item.kind === "symposium" ? splitSymposiumTitle(item.title) : null;
+  const textClass = compact
+    ? "text-[11px] leading-snug xl:text-xs 2xl:text-sm"
+    : "text-base leading-snug sm:text-lg";
+
+  if (split) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt=""
-        className="flex h-14 w-[7.25rem] shrink-0 items-center justify-center rounded-xl bg-white object-contain p-1.5 ring-1 ring-zinc-200/90 sm:h-16 sm:w-[8.5rem] sm:p-2"
-      />
+      <>
+        <span className={`block font-bold ${textClass}`}>{split.label}</span>
+        <span className={`mt-0.5 block font-semibold ${textClass}`}>
+          {split.subtitle}
+        </span>
+      </>
     );
   }
 
+  return <span className={`block font-bold ${textClass}`}>{item.title}</span>;
+}
+
+function EventCard({
+  item,
+  theme,
+  compact = false,
+  position = "below",
+}: {
+  item: ProgramItem;
+  theme: Theme;
+  compact?: boolean;
+  position?: "above" | "below";
+}) {
+  const t = themeClasses[theme];
+
   return (
-    <SpeakerPhoto
-      src={src}
-      alt={name ?? ""}
-      size="sm"
-      speakerId={speakerId}
-      framing={getPhotoFramingByName(name)}
-    />
+    <article
+      className={`relative w-full bg-white shadow-md shadow-zinc-200/80 ring-1 ring-zinc-100 ${
+        compact
+          ? "rounded-lg px-3.5 py-2 xl:px-4 xl:py-2.5"
+          : "rounded-2xl p-4 sm:p-5"
+      }`}
+    >
+      <span
+        className={`pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white ${
+          position === "above"
+            ? `-bottom-2 border-b border-r ${t.pointerBorder}`
+            : `-top-2 border-t border-l ${t.pointerBorder}`
+        }`}
+        aria-hidden
+      />
+      <h3 className="text-center text-zinc-900">
+        <EventTitle item={item} compact={compact} />
+      </h3>
+    </article>
   );
 }
 
@@ -175,81 +127,236 @@ function TimeNode({
   timeStart,
   timeEnd,
   theme,
+  compact = false,
 }: {
   timeStart: string;
   timeEnd: string;
   theme: Theme;
+  compact?: boolean;
 }) {
   const t = themeClasses[theme];
   return (
     <div
-      className={`relative z-10 flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-full border-2 border-dashed bg-white px-2 text-center text-xs font-semibold leading-tight sm:h-32 sm:w-32 sm:text-sm ${t.ring}`}
+      className={`relative z-10 flex shrink-0 flex-col items-center justify-center rounded-full border-2 border-dashed bg-white text-center font-semibold leading-tight ${t.ring} ${
+        compact
+          ? `${CIRCLE_SIZE_DESKTOP} px-1 text-[10px] xl:text-[11px]`
+          : "h-24 w-24 px-1.5 text-[10px] sm:h-28 sm:w-28 sm:text-xs"
+      }`}
     >
       <span>{timeStart}</span>
-      <span className="text-[10px] font-normal opacity-80 sm:text-xs">to</span>
+      <span
+        className={`font-normal opacity-80 ${compact ? "text-[8px]" : "text-[9px] sm:text-[10px]"}`}
+      >
+        to
+      </span>
       <span>{timeEnd}</span>
     </div>
   );
 }
 
-function Card({ slot, side }: { slot: Slot; side: "left" | "right" }) {
-  const t = themeClasses[slot.theme];
-  const pointerTowardLine =
-    side === "right"
-      ? `-left-2 top-11 h-3.5 w-3.5 -translate-x-1/2 rotate-45 border-b border-l bg-white ${t.pointerBorder}`
-      : `-right-2 top-11 h-3.5 w-3.5 translate-x-1/2 rotate-45 border-t border-r bg-white ${t.pointerBorder}`;
-
-  const speakerRow =
-    side === "right" ? (
-      <div className="flex items-center gap-3">
-        <SessionAvatar
-          photo={slot.speaker.photo}
-          speakerId={slot.speaker.speakerId}
-          name={slot.speaker.name}
-        />
-        <div className="min-w-0 text-left">
-          <p className="font-bold text-zinc-900">{slot.speaker.name}</p>
-          <p className="text-sm text-zinc-500">{slot.speaker.title}</p>
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-row-reverse items-center gap-3">
-        <SessionAvatar
-          photo={slot.speaker.photo}
-          speakerId={slot.speaker.speakerId}
-          name={slot.speaker.name}
-        />
-        <div className="min-w-0 text-right">
-          <p className="font-bold text-zinc-900">{slot.speaker.name}</p>
-          <p className="text-sm text-zinc-500">{slot.speaker.title}</p>
-        </div>
-      </div>
-    );
-
-  const btnAlign = side === "right" ? "self-start" : "self-end";
-
+function VerticalTimelineTrack({
+  items,
+  globalStartIndex = 0,
+}: {
+  items: ProgramItem[];
+  globalStartIndex?: number;
+}) {
   return (
-    <article className="relative max-w-xl rounded-2xl bg-white p-5 shadow-lg shadow-zinc-200/80 ring-1 ring-zinc-100 sm:p-6">
-      <span
-        className={`pointer-events-none absolute border-2 ${pointerTowardLine}`}
+    <div className="relative">
+      <div
+        className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 border-l border-dashed border-zinc-300"
         aria-hidden
       />
-      {speakerRow}
-      <h3 className="mt-4 text-xl font-bold text-zinc-900 sm:text-2xl">
-        {slot.title}
-      </h3>
-      <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-zinc-600 sm:text-base">
-        {slot.description}
-      </p>
-      {!slot.isBreak ? (
-        <Link
-          href="/program"
-          className={`mt-5 inline-flex rounded-lg px-4 py-2 text-sm font-semibold transition ${t.btn} ${btnAlign}`}
+
+      <ul className="space-y-12 sm:space-y-14">
+        {items.map((item, index) => {
+          const theme = themeForKind(item.kind, globalStartIndex + index);
+
+          return (
+            <li
+              key={item.id}
+              className="relative flex flex-col items-center gap-4 px-1"
+            >
+              <TimeNode
+                timeStart={formatTime12(item.timeStart)}
+                timeEnd={formatTime12(item.timeEnd)}
+                theme={theme}
+              />
+              <EventCard item={item} theme={theme} />
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function HorizontalTimelineTrack({
+  items,
+  globalStartIndex = 0,
+  evenSpread = false,
+  className = "",
+}: {
+  items: ProgramItem[];
+  globalStartIndex?: number;
+  evenSpread?: boolean;
+  className?: string;
+}) {
+  const count = items.length;
+  if (count === 0) return null;
+
+  const lineInset = count > 1 ? `${50 / count}%` : "50%";
+
+  return (
+    <div className={evenSpread ? "w-full" : "overflow-x-auto pb-2 scrollbar-thin"}>
+      <div className={evenSpread ? "w-full" : "w-max min-w-full px-1"}>
+        <div
+          className={`relative flex min-h-56 w-full items-center py-5 xl:min-h-64 xl:py-6 ${className}`}
         >
-          View program
-        </Link>
-      ) : null}
-    </article>
+          {count > 1 ? (
+            <div
+              className="pointer-events-none absolute top-1/2 -translate-y-1/2 border-t border-dashed border-zinc-300"
+              style={{ left: lineInset, right: lineInset }}
+              aria-hidden
+            />
+          ) : null}
+
+          {items.map((item, index) => {
+            const theme = themeForKind(item.kind, globalStartIndex + index);
+            const cardAbove = index % 2 === 0;
+
+            return (
+              <div
+                key={item.id}
+                className={`relative ${
+                  evenSpread ? "min-w-0 flex-1" : "w-36 shrink-0 xl:w-40"
+                }`}
+              >
+                <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+                  <TimeNode
+                    timeStart={formatTime12(item.timeStart)}
+                    timeEnd={formatTime12(item.timeEnd)}
+                    theme={theme}
+                    compact
+                  />
+                </div>
+
+                {cardAbove ? (
+                  <div className="absolute bottom-[calc(50%+2.75rem)] left-1/2 z-20 w-[calc(100%+2rem)] max-w-64 -translate-x-1/2 xl:bottom-[calc(50%+3rem)] xl:max-w-72 2xl:max-w-80">
+                    <EventCard
+                      item={item}
+                      theme={theme}
+                      compact
+                      position="above"
+                    />
+                  </div>
+                ) : (
+                  <div className="absolute top-[calc(50%+2.75rem)] left-1/2 z-20 w-[calc(100%+2rem)] max-w-64 -translate-x-1/2 xl:top-[calc(50%+3rem)] xl:max-w-72 2xl:max-w-80">
+                    <EventCard
+                      item={item}
+                      theme={theme}
+                      compact
+                      position="below"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PeriodSection({
+  title,
+  timeRange,
+  items,
+  globalStartIndex = 0,
+  horizontal = false,
+  evenSpread = false,
+  className = "",
+  trackClassName = "",
+  headerClassName = "",
+}: {
+  title: string;
+  timeRange: string;
+  items: ProgramItem[];
+  globalStartIndex?: number;
+  horizontal?: boolean;
+  evenSpread?: boolean;
+  className?: string;
+  trackClassName?: string;
+  headerClassName?: string;
+}) {
+  return (
+    <section
+      aria-labelledby={`period-${title.toLowerCase()}`}
+      className={className}
+    >
+      <div
+        className={`mb-6 ${
+          horizontal ? "lg:mb-8" : "mb-8 text-center lg:mb-10"
+        } ${headerClassName}`}
+      >
+        <h3
+          id={`period-${title.toLowerCase()}`}
+          className="text-lg font-bold text-zinc-900 sm:text-xl"
+        >
+          {title}
+        </h3>
+        <p className="mt-0.5 text-sm text-zinc-500">{timeRange}</p>
+      </div>
+      {horizontal ? (
+        <HorizontalTimelineTrack
+          items={items}
+          globalStartIndex={globalStartIndex}
+          evenSpread={evenSpread}
+          className={trackClassName}
+        />
+      ) : (
+        <VerticalTimelineTrack
+          items={items}
+          globalStartIndex={globalStartIndex}
+        />
+      )}
+    </section>
+  );
+}
+
+function MobileVerticalTimeline() {
+  return (
+    <div className="lg:hidden">
+      <VerticalTimelineTrack items={programItems} />
+    </div>
+  );
+}
+
+function DesktopHorizontalTimeline() {
+  return (
+    <div className="hidden space-y-24 lg:block xl:space-y-28">
+      <PeriodSection
+        title="Morning"
+        timeRange="9:30 AM – 2:00 PM"
+        items={morningItems}
+        globalStartIndex={0}
+        horizontal
+        evenSpread
+        trackClassName="lg:pb-12"
+      />
+      <PeriodSection
+        title="Afternoon"
+        timeRange="2:00 PM – 6:00 PM"
+        items={afternoonItems}
+        globalStartIndex={morningItems.length}
+        horizontal
+        evenSpread
+        className="lg:pt-4"
+        headerClassName="lg:mb-12"
+        trackClassName="lg:pt-4"
+      />
+    </div>
   );
 }
 
@@ -257,14 +364,15 @@ export function ScheduleTimeline() {
   return (
     <section
       id="schedule"
-      className="relative scroll-mt-20 overflow-hidden bg-zinc-100 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-zinc-100 py-20 sm:py-28"
     >
       <div
         className="pointer-events-none absolute -left-24 top-0 h-64 w-64 rounded-full bg-violet-300/40 blur-3xl"
         aria-hidden
       />
+
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-        <header className="mb-14 text-center">
+        <header className="mb-10 text-center md:mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest text-violet-600">
             Schedule
           </p>
@@ -272,60 +380,39 @@ export function ScheduleTimeline() {
             Day-of timeline
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
-            {EVENT.date} · {EVENT.timeRange}. Sessions alternate around the
-            center line — scroll for the full day rundown.
+            <span className="lg:hidden">
+              {EVENT.date} · {EVENT.timeRange}. Scroll for the full day rundown.
+            </span>
+            <span className="hidden lg:inline">
+              {EVENT.date} · {EVENT.timeRange}. Time and session titles only —
+              see program details for speakers and abstracts.
+            </span>
           </p>
         </header>
 
-        <div className="relative">
-          <div
-            className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 border-l border-dashed border-zinc-300 md:block"
-            aria-hidden
-          />
+        <MobileVerticalTimeline />
 
-          <ul className="space-y-14 md:space-y-20">
-            {slots.map((slot, index) => {
-              const cardOnRight = index % 2 === 0;
-              return (
-                <li key={slot.id}>
-                  <div className="flex flex-col items-center gap-5 md:hidden">
-                    <TimeNode
-                      timeStart={slot.timeStart}
-                      timeEnd={slot.timeEnd}
-                      theme={slot.theme}
-                    />
-                    <Card slot={slot} side={cardOnRight ? "right" : "left"} />
-                  </div>
-
-                  <div className="hidden items-stretch gap-0 md:flex">
-                    <div className="flex min-h-px flex-1 items-center justify-end pr-6 lg:pr-10">
-                      {!cardOnRight ? <Card slot={slot} side="left" /> : null}
-                    </div>
-                    <div className="flex w-36 shrink-0 justify-center pt-4">
-                      <TimeNode
-                        timeStart={slot.timeStart}
-                        timeEnd={slot.timeEnd}
-                        theme={slot.theme}
-                      />
-                    </div>
-                    <div className="flex min-h-px flex-1 items-center justify-start pl-6 lg:pl-10">
-                      {cardOnRight ? <Card slot={slot} side="right" /> : null}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <p className="mt-14 text-center">
+        <div className="mt-10 text-center md:mt-12 lg:hidden">
           <Link
             href="/program"
             className="text-sm font-semibold text-[#34657B] underline-offset-4 transition hover:text-[#2a5163] hover:underline"
           >
             View full program details & speaker profiles →
           </Link>
-        </p>
+        </div>
+      </div>
+
+      <div className="relative mx-auto hidden w-full max-w-[110rem] px-4 lg:block lg:px-6 xl:px-8 2xl:px-10">
+        <DesktopHorizontalTimeline />
+
+        <div className="mt-10 text-center md:mt-12">
+          <Link
+            href="/program"
+            className="text-sm font-semibold text-[#34657B] underline-offset-4 transition hover:text-[#2a5163] hover:underline"
+          >
+            View full program details & speaker profiles →
+          </Link>
+        </div>
       </div>
     </section>
   );
