@@ -7,7 +7,7 @@ import { REGISTER_URL } from "@/lib/register";
 const links = [
   { href: "/", label: "Home" },
   { href: "/program", label: "Program Details" },
-  { href: "/location", label: "Location" },
+  { href: "/location", label: "Direction and Map" },
   { href: "/contact", label: "Contact Us" },
 ];
 
@@ -37,17 +37,18 @@ export function Navbar() {
           </Link>
         </div>
 
-        <ul className="flex w-full flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-zinc-100 pt-3 text-sm font-medium text-zinc-600 md:w-auto md:flex-1 md:flex-nowrap md:justify-center md:border-t-0 md:pt-0 md:gap-8">
+        <ul className="flex w-full flex-nowrap items-center justify-between gap-x-1 border-t border-zinc-100 pt-3 text-xs font-medium leading-tight text-zinc-600 min-[400px]:text-sm sm:gap-x-3 md:w-auto md:flex-1 md:justify-center md:gap-8 md:border-t-0 md:pt-0">
           {links.map(({ href, label }) => {
             const active =
               href === "/"
                 ? pathname === "/"
                 : pathname === href || pathname.startsWith(`${href}/`);
             return (
-              <li key={href}>
+              <li key={href} className="shrink-0">
                 <Link
                   href={href}
-                  className={`relative pb-1 transition hover:text-[#34657B] ${
+                  prefetch={false}
+                  className={`relative whitespace-nowrap pb-1 transition hover:text-[#34657B] ${
                     active ? "font-semibold text-[#34657B]" : "text-zinc-600"
                   }`}
                 >

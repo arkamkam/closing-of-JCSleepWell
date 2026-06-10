@@ -1,5 +1,25 @@
+import type { ReactNode } from "react";
 import { speakers } from "@/lib/program";
 import { SpeakerPhoto } from "./SpeakerPhoto";
+
+function CollapsibleText({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <details className={`group ${className}`}>
+      <summary className="cursor-pointer text-sm font-semibold text-teal-700 transition hover:text-teal-800">
+        {label}
+      </summary>
+      <div className="mt-2 text-sm leading-relaxed text-zinc-600">{children}</div>
+    </details>
+  );
+}
 
 export function SpeakerBios() {
   return (
@@ -27,19 +47,14 @@ export function SpeakerBios() {
               ) : null}
             </div>
           </div>
-          <div className="border-t border-zinc-100 px-5 py-4 sm:px-6">
-            <p className="text-sm leading-relaxed text-zinc-600">
-              {speaker.biography}
-            </p>
+          <div className="space-y-4 border-t border-zinc-100 px-5 py-4 sm:px-6">
+            <CollapsibleText label="View biography">
+              <p>{speaker.biography}</p>
+            </CollapsibleText>
             {speaker.abstract ? (
-              <details className="mt-4 group">
-                <summary className="cursor-pointer text-sm font-semibold text-teal-700 transition hover:text-teal-800">
-                  View abstract
-                </summary>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-                  {speaker.abstract}
-                </p>
-              </details>
+              <CollapsibleText label="View abstract">
+                <p>{speaker.abstract}</p>
+              </CollapsibleText>
             ) : null}
           </div>
         </article>

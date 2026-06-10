@@ -49,8 +49,8 @@ export default function ProgramPage() {
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-2 text-2xl font-bold text-zinc-900">Speaker Profiles</h2>
           <p className="mb-8 text-sm text-zinc-600">
-            Biographies for confirmed symposium speakers. Additional speaker
-            profiles will be added as they are confirmed.
+            Biographies and presentation abstracts for symposium speakers.
+            Additional details will be added as they are confirmed.
           </p>
           <SpeakerBios />
         </div>

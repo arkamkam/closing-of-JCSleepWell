@@ -65,16 +65,20 @@ export default function ContactPage() {
           </div>
 
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-lg font-bold text-zinc-900">Location</h2>
+            <h2 className="text-lg font-bold text-zinc-900">
+              Direction and Map
+            </h2>
             <p className="mt-3 text-sm text-zinc-600">
-              The symposium will be held at CUHK. See the Location page for
-              venue details and directions.
+              The symposium will be held at HCICC, Cheng Yu Tung Building, CUHK.
+              See the Direction and Map page for venue details and travel
+              directions.
             </p>
             <Link
               href="/location"
+              prefetch={false}
               className="mt-4 inline-flex text-sm font-semibold text-[#34657B] transition hover:text-[#2a5163]"
             >
-              View location →
+              View directions and map →
             </Link>
           </div>
         </div>

@@ -57,20 +57,24 @@ export function SpeakerPhoto({
 
   return (
     <div
-      className={`relative shrink-0 overflow-hidden rounded-full border-2 border-zinc-200 ${sizeClasses[size]}`}
-      style={{ backgroundColor: backdrop ?? "#e4e4e7" }}
+      className={`shrink-0 rounded-full border-2 border-[#34657B] p-0.5 ${sizeClasses[size]}`}
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover"
-        style={{
-          objectPosition,
-          transform: scale !== 1 ? `scale(${scale})` : undefined,
-        }}
-        sizes={size === "sm" ? "64px" : "96px"}
-      />
+      <div
+        className="relative h-full w-full overflow-hidden rounded-full"
+        style={{ backgroundColor: backdrop ?? "#e4e4e7" }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+          style={{
+            objectPosition,
+            transform: scale !== 1 ? `scale(${scale})` : undefined,
+          }}
+          sizes={size === "sm" ? "64px" : "96px"}
+        />
+      </div>
     </div>
   );
 }

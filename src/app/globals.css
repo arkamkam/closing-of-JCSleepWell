@@ -32,3 +32,8 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+::selection {
+  background-color: rgb(52 101 123 / 0.22);
+  color: inherit;
+}
