@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { IconMapPin } from "@/components/icons";
 import { MapEmbed } from "@/components/MapEmbed";
+import { CONTACT_EMAIL, CONTACT_PHONE } from "@/lib/contact";
 
 /** Google Maps embed for Cheng Yu Tung Building — interaction disabled via wrapper. */
 const CHEUNG_YU_TUNG_MAP_EMBED =
@@ -12,7 +13,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Direction and Map · JC Sleep Well Symposium 2026",
   description:
-    "Directions to Henry Cheng International Conference Centre, Cheng Yu Tung Building, The Chinese University of Hong Kong.",
+    "Directions to Henry Cheng International Conference Centre, CUHK, and contact details for the organising team.",
 };
 
 function DirectionList({ items }: { items: string[] }) {
@@ -114,6 +115,38 @@ export default function LocationPage() {
               ]}
             />
           </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl bg-white p-6 shadow-lg shadow-zinc-200/80 ring-1 ring-zinc-100 sm:p-8">
+          <h2 className="text-xl font-bold text-zinc-900">Contact Us</h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600 sm:text-base">
+            Questions about registration, the program, or venue access? Reach out
+            to the organising team.
+          </p>
+          <dl className="mt-5 space-y-4 text-sm sm:text-base">
+            <div>
+              <dt className="font-semibold text-zinc-800">Phone</dt>
+              <dd className="mt-1">
+                <a
+                  href={`tel:${CONTACT_PHONE.replace(/\s/g, "")}`}
+                  className="font-medium text-[#34657B] transition hover:text-[#2a5163]"
+                >
+                  {CONTACT_PHONE}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-zinc-800">Email</dt>
+              <dd className="mt-1">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="font-medium text-[#34657B] transition hover:text-[#2a5163]"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </dd>
+            </div>
+          </dl>
         </section>
 
         <p className="mt-10 text-center">

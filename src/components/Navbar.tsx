@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { REGISTER_URL } from "@/lib/register";
 
+const SITE_HOME = "https://jcsleepwell.cuhk.edu.hk/";
+const SITE_LOGO = "/res/MAIN_LOGO.svg";
+
 const links = [
   { href: "/", label: "Home" },
   { href: "/program", label: "Program Details" },
   { href: "/location", label: "Direction and Map" },
-  { href: "/contact", label: "Contact Us" },
 ];
 
 const registerClassName =
@@ -22,10 +24,20 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between md:gap-6 md:py-5 lg:px-8">
         <div className="flex items-center justify-between gap-4 md:contents">
           <Link
-            href="/"
-            className="shrink-0 text-lg font-bold tracking-tight text-[#34657B]"
+            href={SITE_HOME}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 transition hover:opacity-90"
+            aria-label="賽馬會樂眠無憂計劃"
           >
-            JC Sleep Well
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={SITE_LOGO}
+              alt="賽馬會樂眠無憂計劃"
+              width={200}
+              height={56}
+              className="h-10 w-auto object-contain sm:h-11 md:h-12"
+            />
           </Link>
           <Link
             href={REGISTER_URL}

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { EVENT, programItems, type ProgramItem } from "@/lib/program";
 
 const AFTERNOON_START_MIN = 14 * 60;
-const CIRCLE_SIZE = "h-18 w-18";
 const CIRCLE_SIZE_DESKTOP = "h-20 w-20 xl:h-[5.5rem] xl:w-[5.5rem]";
 
 function formatTime12(time: string) {
@@ -70,7 +69,7 @@ function EventTitle({
 }) {
   const split = item.kind === "symposium" ? splitSymposiumTitle(item.title) : null;
   const textClass = compact
-    ? "text-[11px] leading-snug xl:text-xs 2xl:text-sm"
+    ? "text-[11px] leading-snug sm:text-xs lg:text-sm"
     : "text-base leading-snug sm:text-lg";
 
   if (split) {
@@ -325,37 +324,105 @@ function PeriodSection({
   );
 }
 
-function MobileVerticalTimeline() {
+function CompactTimelineList({
+  items,
+  desktop = false,
+}: {
+  items: ProgramItem[];
+  desktop?: boolean;
+}) {
   return (
-    <div className="lg:hidden">
-      <VerticalTimelineTrack items={programItems} />
+    <ul className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-zinc-200/80">
+      {items.map((item, index) => (
+        <li
+          key={item.id}
+          className={`flex gap-3 px-4 py-3 ${
+            desktop ? "lg:gap-4 lg:px-5 lg:py-3.5" : ""
+          } ${index > 0 ? "border-t border-zinc-100" : ""} ${
+            item.kind === "break" ? "bg-zinc-50/80" : ""
+          }`}
+        >
+          <p
+            className={`w-[6.75rem] shrink-0 text-[11px] font-semibold leading-snug text-zinc-500 sm:w-28 sm:text-xs ${
+              desktop ? "lg:w-32 lg:text-sm" : ""
+            }`}
+          >
+            {formatTime12(item.timeStart)}
+            <span className="font-normal"> – {formatTime12(item.timeEnd)}</span>
+          </p>
+          <div className="min-w-0 flex-1 text-sm leading-snug text-zinc-900">
+            <EventTitle item={item} compact />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function MobileCompactTimeline() {
+  return (
+    <div className="space-y-8 lg:hidden">
+      <section aria-labelledby="period-morning-mobile">
+        <div className="mb-4 text-center">
+          <h3
+            id="period-morning-mobile"
+            className="text-lg font-bold text-zinc-900"
+          >
+            Morning
+          </h3>
+          <p className="mt-0.5 text-sm text-zinc-500">9:30 AM – 2:00 PM</p>
+        </div>
+        <CompactTimelineList items={morningItems} />
+      </section>
+
+      <section aria-labelledby="period-afternoon-mobile">
+        <div className="mb-4 text-center">
+          <h3
+            id="period-afternoon-mobile"
+            className="text-lg font-bold text-zinc-900"
+          >
+            Afternoon
+          </h3>
+          <p className="mt-0.5 text-sm text-zinc-500">2:00 PM – 6:00 PM</p>
+        </div>
+        <CompactTimelineList items={afternoonItems} />
+      </section>
     </div>
   );
 }
 
-function DesktopHorizontalTimeline() {
+function MobileVerticalTimeline() {
+  return <MobileCompactTimeline />;
+}
+
+function DesktopCompactTimeline() {
   return (
-    <div className="hidden space-y-24 lg:block xl:space-y-28">
-      <PeriodSection
-        title="Morning"
-        timeRange="9:30 AM – 2:00 PM"
-        items={morningItems}
-        globalStartIndex={0}
-        horizontal
-        evenSpread
-        trackClassName="lg:pb-12"
-      />
-      <PeriodSection
-        title="Afternoon"
-        timeRange="2:00 PM – 6:00 PM"
-        items={afternoonItems}
-        globalStartIndex={morningItems.length}
-        horizontal
-        evenSpread
-        className="lg:pt-4"
-        headerClassName="lg:mb-12"
-        trackClassName="lg:pt-4"
-      />
+    <div className="hidden lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-10 xl:gap-x-14">
+      <section aria-labelledby="period-morning-desktop">
+        <div className="mb-5 text-center lg:mb-6">
+          <h3
+            id="period-morning-desktop"
+            className="text-xl font-bold text-zinc-900"
+          >
+            Morning
+          </h3>
+          <p className="mt-0.5 text-sm text-zinc-500">9:30 AM – 2:00 PM</p>
+        </div>
+        <CompactTimelineList items={morningItems} desktop />
+      </section>
+
+      <section aria-labelledby="period-afternoon-desktop">
+        <div className="mb-5 text-center lg:mb-6">
+          <h3
+            id="period-afternoon-desktop"
+            className="text-xl font-bold text-zinc-900"
+          >
+            Afternoon
+          </h3>
+          <p className="mt-0.5 text-sm text-zinc-500">2:00 PM – 6:00 PM</p>
+        </div>
+        <CompactTimelineList items={afternoonItems} desktop />
+      </section>
     </div>
   );
 }
@@ -381,7 +448,7 @@ export function ScheduleTimeline() {
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
             <span className="lg:hidden">
-              {EVENT.date} · {EVENT.timeRange}. Scroll for the full day rundown.
+              {EVENT.date} · {EVENT.timeRange}. Morning and afternoon at a glance.
             </span>
             <span className="hidden lg:inline">
               {EVENT.date} · {EVENT.timeRange}. Time and session titles only —
@@ -402,8 +469,8 @@ export function ScheduleTimeline() {
         </div>
       </div>
 
-      <div className="relative mx-auto hidden w-full max-w-[110rem] px-4 lg:block lg:px-6 xl:px-8 2xl:px-10">
-        <DesktopHorizontalTimeline />
+      <div className="relative mx-auto hidden w-full max-w-6xl px-4 lg:block lg:px-8 xl:px-10">
+        <DesktopCompactTimeline />
 
         <div className="mt-10 text-center md:mt-12">
           <Link
