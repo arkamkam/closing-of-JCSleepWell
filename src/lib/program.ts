@@ -142,6 +142,83 @@ export const programItems: ProgramItem[] = [
   },
 ];
 
+/** Simplified day-of overview for the public homepage (full detail on /program). */
+export const scheduleOverviewItems: ProgramItem[] = [
+  {
+    id: "opening",
+    timeStart: "09:30",
+    timeEnd: "11:00",
+    title: "Opening Ceremony & Project Showcase",
+    kind: "ceremony",
+  },
+  {
+    id: "tea1",
+    timeStart: "11:00",
+    timeEnd: "11:15",
+    title: "Tea Break",
+    kind: "break",
+  },
+  {
+    id: "keynote1",
+    timeStart: "11:15",
+    timeEnd: "12:00",
+    title: "Keynote Session 1",
+    kind: "keynote",
+  },
+  {
+    id: "keynote2",
+    timeStart: "12:00",
+    timeEnd: "12:45",
+    title: "Keynote Session 2",
+    kind: "keynote",
+  },
+  {
+    id: "lunch",
+    timeStart: "12:45",
+    timeEnd: "14:00",
+    title: "Lunch",
+    kind: "break",
+  },
+  {
+    id: "symposium1",
+    timeStart: "14:00",
+    timeEnd: "15:00",
+    title: "Symposium 1",
+    kind: "symposium",
+    symposiumId: "s1",
+  },
+  {
+    id: "symposium2",
+    timeStart: "15:00",
+    timeEnd: "16:00",
+    title: "Symposium 2",
+    kind: "symposium",
+    symposiumId: "s2",
+  },
+  {
+    id: "tea2",
+    timeStart: "16:00",
+    timeEnd: "16:20",
+    title: "Tea Break",
+    kind: "break",
+  },
+  {
+    id: "symposium3",
+    timeStart: "16:20",
+    timeEnd: "17:20",
+    title: "Symposium 3",
+    kind: "symposium",
+    symposiumId: "s3",
+  },
+  {
+    id: "panel",
+    timeStart: "17:20",
+    timeEnd: "18:00",
+    title: "Panel Discussion",
+    kind: "panel",
+  },
+];
+
 export const symposiumBlocks: SymposiumBlock[] = [
   {
     id: "s1",

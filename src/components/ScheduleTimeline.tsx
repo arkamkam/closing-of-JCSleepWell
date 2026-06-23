@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EVENT, programItems, type ProgramItem } from "@/lib/program";
+import { EVENT, scheduleOverviewItems, type ProgramItem } from "@/lib/program";
 
 const AFTERNOON_START_MIN = 14 * 60;
 const CIRCLE_SIZE_DESKTOP = "h-20 w-20 xl:h-[5.5rem] xl:w-[5.5rem]";
@@ -16,10 +16,10 @@ function timeToMinutes(time: string) {
   return h * 60 + m;
 }
 
-const morningItems = programItems.filter(
+const morningItems = scheduleOverviewItems.filter(
   (item) => timeToMinutes(item.timeStart) < AFTERNOON_START_MIN,
 );
-const afternoonItems = programItems.filter(
+const afternoonItems = scheduleOverviewItems.filter(
   (item) => timeToMinutes(item.timeStart) >= AFTERNOON_START_MIN,
 );
 
@@ -448,11 +448,14 @@ export function ScheduleTimeline() {
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
             <span className="lg:hidden">
-              {EVENT.date} · {EVENT.timeRange}. Morning and afternoon at a glance.
+              <span className="block">{EVENT.date}</span>
+              <span className="mt-0.5 block">
+                {EVENT.timeRange}. Morning and afternoon at a glance.
+              </span>
             </span>
             <span className="hidden lg:inline">
-              {EVENT.date} · {EVENT.timeRange}. Time and session titles only —
-              see program details for speakers and abstracts.
+              {EVENT.date} · {EVENT.timeRange}. Overview at a glance — see
+              program details for the full rundown, speakers, and abstracts.
             </span>
           </p>
         </header>
